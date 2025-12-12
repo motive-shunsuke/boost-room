@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOOST ROOM | 山形の次世代自習室</title>
+    <meta name="description" content="山形の自習室 BOOST ROOM。企業理念「原動力」を体現する、未来志向の空間。高校生、受験生、社会人のための没入型学習スペース。">
+    
+    <!-- Tailwind CSS (via CDN for standalone functionality) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons (Lucide via script for lightweight usage, using SVG directly in code for reliability in single file) -->
+    <!-- We will use FontAwesome CDN for convenience in this prototype -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'motive-orange': '#FF6B00', // Approximate Motive Orange
+                        'motive-orange-light': '#FF8533',
+                        'deep-black': '#0a0a0a',
+                        'deep-gray': '#121212',
+                        'card-gray': '#1E1E1E',
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans JP"', 'sans-serif'],
+                        display: ['"Oswald"', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Styles for Neon Effects and Utilities */
+        body {
+            background-color: #050505;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* Neon Glow Utility */
+        .neon-text {
+            text-shadow: 0 0 10px rgba(255, 107, 0, 0.7), 0 0 20px rgba(255, 107, 0, 0.5);
+        }
+        .neon-box {
+            box-shadow: 0 0 15px rgba(255, 107, 0, 0.3);
+            border: 1px solid rgba(255, 107, 0, 0.5);
+        }
+        .neon-box:hover {
+            box-shadow: 0 0 25px rgba(255, 107, 0, 0.6);
+            border-color: #FF6B00;
+        }
+
+        /* Loading Screen */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease-out;
+        }
+
+        /* Scroll Animation Utility classes */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+
+        /* Sticky Footer Spacer */
+        body {
+            padding-bottom: 80px; /* Space for sticky footer */
+        }
+    </style>
+</head>
+<body class="antialiased font-sans text-gray-300">
+
+    <!-- Loading Screen -->
+    <div id="loader">
+        <div class="text-center">
+            <h1 class="text-4xl md:text-6xl font-display font-bold text-white tracking-widest animate-pulse">
+                BOOST <span class="text-motive-orange neon-text">ROOM</span>
+            </h1>
+            <p class="mt-2 text-sm text-gray-500 tracking-[0.5em]">LOADING</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="fixed top-0 w-full z-50 bg-deep-black/90 backdrop-blur-md border-b border-white/10 transition-all duration-300" id="navbar">
+        <div class="container mx-auto px-4 h-16 flex items-center justify-between">
+            <!-- Logo -->
+            <a href="#" class="text-2xl font-display font-bold text-white tracking-wider hover:opacity-80 transition">
+                BOOST <span class="text-motive-orange">ROOM</span>
+            </a>
+
+            <!-- Desktop Nav -->
+            <nav class="hidden md:flex space-x-8">
+                <a href="#concept" class="text-sm font-medium hover:text-motive-orange transition-colors duration-300">CONCEPT</a>
+                <a href="#flow" class="text-sm font-medium hover:text-motive-orange transition-colors duration-300">FLOW</a>
+                <a href="#price" class="text-sm font-medium hover:text-motive-orange transition-colors duration-300">PRICE</a>
+                <a href="#access" class="text-sm font-medium hover:text-motive-orange transition-colors duration-300">ACCESS</a>
+            </nav>
+
+            <!-- Mobile Menu Button -->
+            <button id="menu-btn" class="md:hidden text-white focus:outline-none">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu" class="mobile-menu fixed inset-0 z-40 bg-deep-black/95 backdrop-blur-xl flex flex-col justify-center items-center space-y-8 md:hidden">
+        <button id="close-menu-btn" class="absolute top-5 right-5 text-white text-3xl">
+            <i class="fas fa-times"></i>
+        </button>
+        <a href="#concept" class="text-2xl font-display font-bold hover:text-motive-orange transition menu-link">CONCEPT</a>
+        <a href="#flow" class="text-2xl font-display font-bold hover:text-motive-orange transition menu-link">FLOW</a>
+        <a href="#price" class="text-2xl font-display font-bold hover:text-motive-orange transition menu-link">PRICE</a>
+        <a href="#access" class="text-2xl font-display font-bold hover:text-motive-orange transition menu-link">ACCESS</a>
+        <a href="#" class="text-sm text-gray-500 mt-8">法人の方はこちら &rarr;</a>
+    </div>
+
+    <!-- Hero Section (FV) -->
+    <section class="relative h-screen w-full flex items-center justify-center overflow-hidden">
+        <!-- Background Image with Overlay -->
+        <div class="absolute inset-0 z-0">
+            <!-- Using a placeholder image that represents "Deep Focus" / Dark Study Room -->
+            <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2301&auto=format&fit=crop" 
+                 alt="Boost Room Interior" 
+                 class="w-full h-full object-cover opacity-40">
+            <div class="absolute inset-0 bg-gradient-to-b from-deep-black/30 via-deep-black/50 to-deep-black"></div>
+        </div>
+
+        <!-- Content -->
+        <div class="relative z-10 container mx-auto px-4 text-center fade-up">
+            <p class="text-motive-orange font-bold tracking-[0.2em] mb-4 text-sm md:text-base">YAMAGATA STUDY SPACE</p>
+            <h1 class="text-4xl md:text-7xl font-display font-bold leading-tight mb-6">
+                覚醒せよ、<br>君の<span class="text-motive-orange neon-text">原動力</span>。
+            </h1>
+            <p class="text-gray-300 text-sm md:text-lg mb-8 max-w-xl mx-auto leading-relaxed">
+                静寂の中に、熱量はある。<br>
+                山形で見つける、あなただけの没入空間。<br>
+                BOOST ROOMで、未来を変える時間を。
+            </p>
+            
+            <!-- Hero CTA (PC view mostly, but good for all) -->
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4">
+                <a href="https://line.me/ja/" target="_blank" class="neon-box bg-motive-orange/10 text-motive-orange px-8 py-3 rounded-full font-bold transition-all hover:bg-motive-orange hover:text-black flex items-center gap-2 group">
+                    <i class="fab fa-line text-xl"></i> 無料体験を予約する
+                    <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <span class="text-gray-500 text-xs tracking-widest">SCROLL</span>
+            <i class="fas fa-chevron-down block text-motive-orange mt-2"></i>
+        </div>
+    </section>
+
+    <!-- Concept Section -->
+    <section id="concept" class="py-20 md:py-32 bg-deep-black relative">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16 fade-up">
+                <h2 class="text-3xl md:text-4xl font-display font-bold mb-4">CONCEPT</h2>
+                <div class="w-12 h-1 bg-motive-orange mx-auto mb-6"></div>
+                <p class="text-lg text-gray-400">「Motive Power（原動力）」を体現する、<br class="md:hidden">未来志向の空間。</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <!-- Image side -->
+                <div class="fade-up relative">
+                    <div class="absolute -inset-2 bg-motive-orange/20 blur-xl rounded-lg"></div>
+                    <img src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=2340&auto=format&fit=crop" alt="Concentration" class="relative rounded-lg shadow-2xl border border-white/10 grayscale hover:grayscale-0 transition duration-700 w-full object-cover h-80 md:h-[500px]">
+                </div>
+
+                <!-- Text side -->
+                <div class="fade-up">
+                    <h3 class="text-2xl font-bold text-white mb-6">
+                        家でもカフェでもない。<br>
+                        <span class="text-motive-orange">「没入」</span>するための最適解。
+                    </h3>
+                    <p class="text-gray-400 mb-6 leading-relaxed">
+                        BOOST ROOMは単なる自習室ではありません。あなたの「やる気」を引き出し、持続させるためのエンジニアリングが施された空間です。
+                        ブラックを基調とした内装は視覚的なノイズを排除し、オレンジのアクセントが脳を覚醒させます。
+                    </p>
+                    
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded bg-card-gray flex items-center justify-center text-motive-orange border border-white/10 shrink-0">
+                                <i class="fas fa-chair"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white">長時間でも疲れない椅子</h4>
+                                <p class="text-sm text-gray-500">人間工学に基づいた高機能チェアを採用。</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded bg-card-gray flex items-center justify-center text-motive-orange border border-white/10 shrink-0">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white">集中を促す照明設計</h4>
+                                <p class="text-sm text-gray-500">手元は明るく、周囲は落ち着いた照度に調整。</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded bg-card-gray flex items-center justify-center text-motive-orange border border-white/10 shrink-0">
+                                <i class="fas fa-wifi"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white">高速Wi-Fi & 電源完備</h4>
+                                <p class="text-sm text-gray-500">動画講義やオンラインMTGもストレスフリー。</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Usage Flow -->
+    <section id="flow" class="py-20 bg-deep-gray border-y border-white/5">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16 fade-up">
+                <h2 class="text-3xl md:text-4xl font-display font-bold mb-4">HOW TO USE</h2>
+                <div class="w-12 h-1 bg-motive-orange mx-auto mb-6"></div>
+                <p class="text-gray-400">面倒な手続きなし。<br>スマホひとつで、今すぐスタート。</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
+                <!-- Connecting Line (Desktop only) -->
+                <div class="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-motive-orange/50 to-transparent z-0"></div>
+
+                <!-- Step 1 -->
+                <div class="bg-card-gray p-8 rounded-xl border border-white/5 relative z-10 text-center hover:border-motive-orange/50 transition duration-300 fade-up">
+                    <div class="w-16 h-16 bg-deep-black rounded-full flex items-center justify-center text-2xl text-motive-orange border-2 border-motive-orange mx-auto mb-6 neon-box">
+                        <i class="fab fa-line"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">LINE登録</h3>
+                    <p class="text-sm text-gray-500">公式LINEを友だち追加。<br>メニューから無料体験へ。</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="bg-card-gray p-8 rounded-xl border border-white/5 relative z-10 text-center hover:border-motive-orange/50 transition duration-300 fade-up" style="transition-delay: 100ms;">
+                    <div class="w-16 h-16 bg-deep-black rounded-full flex items-center justify-center text-2xl text-motive-orange border-2 border-motive-orange mx-auto mb-6 neon-box">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">スマート解錠</h3>
+                    <p class="text-sm text-gray-500">LINEで送られてくる<br>キーでドアを解錠。</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="bg-card-gray p-8 rounded-xl border border-white/5 relative z-10 text-center hover:border-motive-orange/50 transition duration-300 fade-up" style="transition-delay: 200ms;">
+                    <div class="w-16 h-16 bg-deep-black rounded-full flex items-center justify-center text-2xl text-motive-orange border-2 border-motive-orange mx-auto mb-6 neon-box">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">チェックイン</h3>
+                    <p class="text-sm text-gray-500">席についたらQRコードを<br>読み込んで利用開始。</p>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="bg-card-gray p-8 rounded-xl border border-white/5 relative z-10 text-center hover:border-motive-orange/50 transition duration-300 fade-up" style="transition-delay: 300ms;">
+                    <div class="w-16 h-16 bg-deep-black rounded-full flex items-center justify-center text-2xl text-motive-orange border-2 border-motive-orange mx-auto mb-6 neon-box">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">圧倒的集中</h3>
+                    <p class="text-sm text-gray-500">あとは目標に向かって<br>突き進むだけ。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section id="price" class="py-20 bg-deep-black">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16 fade-up">
+                <h2 class="text-3xl md:text-4xl font-display font-bold mb-4">PRICE PLAN</h2>
+                <div class="w-12 h-1 bg-motive-orange mx-auto mb-6"></div>
+                <p class="text-gray-400">目的に合わせて選べる、<br class="md:hidden">納得の料金プラン。</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <!-- Plan 1: Student -->
+                <div class="bg-card-gray border border-white/10 rounded-2xl p-8 flex flex-col relative overflow-hidden group hover:border-motive-orange transition duration-300 fade-up">
+                    <div class="absolute top-0 right-0 bg-gray-700 text-xs text-white px-3 py-1 rounded-bl-lg">学割適用</div>
+                    <h3 class="text-xl font-bold text-white mb-2">学生プラン</h3>
+                    <p class="text-sm text-gray-500 mb-6">高校生・受験生向け</p>
+                    <div class="mb-6">
+                        <span class="text-3xl font-bold text-motive-orange">¥10,000</span><span class="text-sm text-gray-400"> /月〜</span>
+                    </div>
+                    <ul class="space-y-3 mb-8 flex-1">
+                        <li class="flex items-center gap-2 text-sm text-gray-300"><i class="fas fa-check text-motive-orange"></i> 全日使い放題</li>
+                        <li class="flex items-center gap-2 text-sm text-gray-300"><i class="fas fa-check text-motive-orange"></i> 高速Wi-Fi完備</li>
+                        <li class="flex items-center gap-2 text-sm text-gray-300"><i class="fas fa-check text-motive-orange"></i> フリードリンク</li>
+                    </ul>
+                    <a href="https://line.me/ja/" class="block w-full text-center py-3 border border-white/20 rounded-lg text-white hover:bg-motive-orange hover:border-motive-orange transition">詳細を見る</a>
+                </div>
+
+                <!-- Plan 2: Adult (Recommended) -->
+                <div class="bg-card-gray border-2 border-motive-orange rounded-2xl p-8 flex flex-col relative overflow-hidden transform md:-translate-y-4 shadow-[0_0_30px_rgba(255,107,0,0.15)] fade-up">
+                    <div class="absolute top-0 right-0 bg-motive-orange text-xs text-black font-bold px-3 py-1 rounded-bl-lg">POPULAR</div>
+                    <h3 class="text-xl font-bold text-white mb-2">一般プラン</h3>
+                    <p class="text-sm text-gray-500 mb-6">資格取得・リスキリング</p>
+                    <div class="mb-6">
+                        <span class="text-3xl font-bold text-motive-orange">¥12,000</span><span class="text-sm text-gray-400"> /月〜</span>
+                    </div>
+                    <ul class="space-y-3 mb-8 flex-1">
+                        <li class="flex items-center gap-2 text-sm text-gray-300"><i class="fas fa-check text-motive-orange"></i> 24時間利用可能</li>
+                        <li class="flex items-center gap-2 text-sm text-gray-300"><i class="fas fa-check text-motive-orange"></i> 固定席オプションあり</li>
+                        <li class="flex items-center gap-2 text-sm text-gray-300"><i class="fas fa-check text-motive-orange"></i> ロッカー利用可</li>
+                        <li class="flex items-center gap-2 text-sm text-gray-300"><i class="fas fa-check text-motive-orange"></i> 登記利用可（要相談）</li>
+                    </ul>
+                    <a href="https://line.me/ja/" class="block w-full text-center py-3 bg-motive-orange text-black font-bold rounded-lg hover:bg-white transition">無料体験に申し込む</a>
+                </div>
+
+                <!-- Plan 3: Drop-in -->
+                <div class="bg-card-gray border border-white/10 rounded-2xl p-8 flex flex-col relative overflow-hidden hover:border-motive-orange transition duration-300 fade-up">
+                    <h3 class="text-xl font-bold text-white mb-2">ドロップイン</h3>
+                    <p class="text-sm text-gray-500 mb-6">一時利用・お試し</p>
+                    <div class="mb-6">
+                        <span class="text-3xl font-bold text-motive-orange">¥500</span><span class="text-sm text-gray-400"> /時間〜</span>
+                    </div>
+                    <ul class="space-y-3 mb-8 flex-1">
+                        <li class="flex items-center gap-2 text-sm text-gray-300"><i class="fas fa-check text-motive-orange"></i> 入会金不要</li>
+                        <li class="flex items-center gap-2 text-sm text-gray-300"><i class="fas fa-check text-motive-orange"></i> Wi-Fi / 電源利用可</li>
+                        <li class="flex items-center gap-2 text-sm text-gray-300"><i class="fas fa-check text-motive-orange"></i> クレカ・電子マネー決済</li>
+                    </ul>
+                    <a href="https://line.me/ja/" class="block w-full text-center py-3 border border-white/20 rounded-lg text-white hover:bg-motive-orange hover:border-motive-orange transition">詳細を見る</a>
+                </div>
+            </div>
+
+            <!-- Payment Methods -->
+            <div class="mt-12 text-center fade-up">
+                <p class="text-xs text-gray-500 mb-4">各種決済に対応</p>
+                <div class="flex justify-center gap-4 text-2xl text-gray-400">
+                    <i class="fab fa-cc-visa"></i>
+                    <i class="fab fa-cc-mastercard"></i>
+                    <i class="fab fa-cc-jcb"></i>
+                    <i class="fab fa-apple-pay"></i>
+                    <i class="fab fa-google-pay"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Access & Footer -->
+    <footer id="access" class="bg-deep-gray pt-16 pb-32 md:pb-16 border-t border-white/5">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
+                <!-- Info -->
+                <div>
+                    <h2 class="text-2xl font-display font-bold text-white mb-6">BOOST <span class="text-motive-orange">ROOM</span></h2>
+                    <p class="text-gray-400 mb-6">
+                        株式会社Motive Powerが運営する、<br>
+                        成果を出すための次世代自習室。<br>
+                        あなたの挑戦を、空間からサポートします。
+                    </p>
+                    <div class="space-y-2 text-sm text-gray-400">
+                        <p><i class="fas fa-map-marker-alt w-6 text-motive-orange"></i> 山形県山形市〇〇町 1-2-3</p>
+                        <p><i class="far fa-clock w-6 text-motive-orange"></i> 24時間営業（年中無休）</p>
+                        <p><i class="fas fa-phone w-6 text-motive-orange"></i> 023-XXX-XXXX</p>
+                    </div>
+                </div>
+                
+                <!-- Map Placeholder -->
+                <div class="w-full h-64 bg-card-gray rounded-lg border border-white/10 flex items-center justify-center relative overflow-hidden">
+                     <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d198254.1206898852!2d140.22896685!3d38.25542875!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x5f8bb60655555555%3A0x5555555555555555!2sYamagata!5e0!3m2!1sen!2sjp!4v1620000000000!5m2!1sen!2sjp" 
+                        width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" class="opacity-70 hover:opacity-100 transition duration-500">
+                    </iframe>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex gap-6 text-sm">
+                    <a href="https://www.instagram.com/boostroom_official" target="_blank" class="text-gray-400 hover:text-motive-orange transition"><i class="fab fa-instagram text-xl"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition">プライバシーポリシー</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition">利用規約</a>
+                    <!-- Phase 2 Preparation -->
+                    <a href="#" class="text-gray-400 hover:text-white transition border-l border-gray-700 pl-6">法人の方はこちら</a>
+                </div>
+                <p class="text-xs text-gray-600">&copy; 2026 Motive Power Co., Ltd. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Sticky Footer (CTA) -->
+    <div id="sticky-cta" class="fixed bottom-0 left-0 w-full bg-deep-black/90 backdrop-blur-md border-t border-white/10 p-4 z-50 transform transition-transform duration-300 translate-y-0">
+        <div class="container mx-auto max-w-md">
+            <!-- Mobile Optimized Button (URL Scheme for App Launch intended, using web link for demo) -->
+            <a href="https://line.me/ja/" class="block w-full bg-gradient-to-r from-motive-orange to-motive-orange-light text-black font-bold text-center py-4 rounded-full shadow-[0_0_20px_rgba(255,107,0,0.4)] hover:shadow-[0_0_30px_rgba(255,107,0,0.6)] transition-all animate-pulse-slow">
+                <i class="fab fa-line text-xl mr-2"></i> LINEで無料体験・見学予約
+            </a>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Loading Animation
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            setTimeout(() => {
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500);
+            }, 1000);
+        });
+
+        // Mobile Menu Toggle
+        const menuBtn = document.getElementById('menu-btn');
+        const closeMenuBtn = document.getElementById('close-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuLinks = document.querySelectorAll('.menu-link');
+
+        function toggleMenu() {
+            mobileMenu.classList.toggle('open');
+            document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+        }
+
+        menuBtn.addEventListener('click', toggleMenu);
+        closeMenuBtn.addEventListener('click', toggleMenu);
+        menuLinks.forEach(link => link.addEventListener('click', toggleMenu));
+
+        // Scroll Animation (Fade-in Up)
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    // Stop observing once visible (optional)
+                    // observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-up').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Smooth Scroll for Anchor Links (Basic implementation handled by CSS scroll-behavior: smooth, 
+        // but explicit JS handles offset for sticky header better if needed)
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    const headerOffset = 80;
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+    
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: "smooth"
+                    });
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
