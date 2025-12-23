@@ -1,3 +1,5 @@
+# Ignore embedded repo directory that should not be treated as a submodule by CI
+DML_Website/
 .DS_Store
 node_modules/
 .env
