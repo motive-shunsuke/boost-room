@@ -1,0 +1,10 @@
+{
+  // Project name shown in Cloudflare
+  "name": "boostroom-html",
+  // Use the compatibility date close to your deploy date
+  "compatibility_date": "2025-12-23",
+  // Deploy a directory of static assets (index.html etc.)
+  "assets": {
+    "directory": "./"
+  }
+}
