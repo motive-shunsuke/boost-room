@@ -1,6 +1,6 @@
 {
   // Project name for Cloudflare
-  "name": "boostroom-html",
+  "name": "boost-room",
   "compatibility_date": "2025-12-23",
   // Deploy the static assets from the BoostRoom HTML folder
   "assets": {
